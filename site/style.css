@@ -112,6 +112,15 @@ main {
   cursor: pointer;
 }
 
+.board {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 2px #000);
+  pointer-events: none;
+}
+
 .plot.open {
   background: var(--open);
   color: #000;
@@ -175,6 +184,12 @@ aside h2 {
   height: 10px;
   border-radius: 5px;
   margin: 0 2px 0 8px;
+}
+
+.key-icon {
+  width: 16px;
+  height: 16px;
+  margin: 0 2px -3px 8px;
 }
 
 footer {

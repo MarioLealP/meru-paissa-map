@@ -65,7 +65,18 @@ function renderMap() {
   $("map-img").src = `maps/${district.id}.webp`;
   const byPlot = Map.groupBy(openPlots(district.id), mainPlot);
 
+  const boards = district.marketBoards.map((b) => {
+    const img = document.createElement("img");
+    img.className = "board";
+    img.src = "maps/market-board.png";
+    img.alt = img.title = "Market board";
+    img.style.left = `${b.x}%`;
+    img.style.top = `${b.y}%`;
+    return img;
+  });
+
   $("markers").replaceChildren(
+    ...boards,
     ...district.plots.map((spot) => {
       const here = byPlot.get(spot.n) ?? [];
       const m = document.createElement("button");

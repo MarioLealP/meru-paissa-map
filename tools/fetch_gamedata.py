@@ -7,6 +7,7 @@ Needs the `vips` CLI for the image crop/convert.
 import json
 import subprocess
 import tempfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -17,6 +18,7 @@ DISTRICTS = {339: 0, 340: 1, 341: 2, 641: 3, 979: 4}
 MAP_PX = 2048
 PAD = 90  # px of map kept around the outermost plots
 OUT_PX = 1400
+MARKET_BOARD_ICON = 60570
 UA = {"User-Agent": "paissa-map gamedata builder (personal, clockmost.com)"}
 
 
@@ -29,6 +31,21 @@ def fetch(url: str) -> bytes:
         return r.read()
 
 
+def map_markers(marker_range: int, icon: int) -> list[dict]:
+    """Map icons (already in map pixels) for one map; subrows run until the first 404."""
+    found, sub = [], 0
+    while True:
+        try:
+            f = get(f"sheet/MapMarker/{marker_range}:{sub}?fields=X,Y,Icon")["fields"]
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return found
+            raise
+        if f["Icon"]["id"] == icon:
+            found.append({"x": f["X"], "y": f["Y"]})
+        sub += 1
+
+
 def to_px(pos: float, offset: int, size_factor: int) -> float:
     return (pos + offset) * size_factor / 100 + MAP_PX / 2
 
@@ -36,7 +53,7 @@ def to_px(pos: float, offset: int, size_factor: int) -> float:
 def build_district(district_id: int, land_row: int, tmp: Path) -> dict:
     terr = get(
         f"sheet/TerritoryType/{district_id}"
-        "?fields=PlaceName.Name,Map.Id,Map.SizeFactor,Map.OffsetX,Map.OffsetY"
+        "?fields=PlaceName.Name,Map.Id,Map.SizeFactor,Map.OffsetX,Map.OffsetY,Map.MapMarkerRange"
     )["fields"]
     m = terr["Map"]["fields"]
     sizes = get(f"sheet/HousingLandSet/{land_row}?fields=LandSet[].PlotSize")["fields"]["LandSet"]
@@ -52,6 +69,8 @@ def build_district(district_id: int, land_row: int, tmp: Path) -> dict:
                 "y": to_px(f["Z"], m["OffsetY"], m["SizeFactor"]),
             }
         )
+
+    boards = map_markers(m["MapMarkerRange"], MARKET_BOARD_ICON)
 
     # square crop around the plots
     xs, ys = [p["x"] for p in plots], [p["y"] for p in plots]
@@ -70,16 +89,23 @@ def build_district(district_id: int, land_row: int, tmp: Path) -> dict:
         ["vips", "resize", cropped, f"{dest}[Q=80]", str(OUT_PX / side)], check=True
     )
 
-    for p in plots:  # positions as % of the cropped image
+    for p in plots + boards:  # positions as % of the cropped image
         p["x"] = round((p["x"] - left) / side * 100, 2)
         p["y"] = round((p["y"] - top) / side * 100, 2)
-    return {"id": district_id, "name": terr["PlaceName"]["fields"]["Name"], "plots": plots}
+    return {
+        "id": district_id,
+        "name": terr["PlaceName"]["fields"]["Name"],
+        "plots": plots,
+        "marketBoards": [b for b in boards if 0 <= b["x"] <= 100 and 0 <= b["y"] <= 100],
+    }
 
 
 def main() -> None:
     (OUT / "maps").mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as t:
         districts = [build_district(d, row, Path(t)) for d, row in DISTRICTS.items()]
+    icon = OUT / "maps" / "market-board.png"
+    icon.write_bytes(fetch(f"{XIVAPI}/asset/ui/icon/060000/0{MARKET_BOARD_ICON}_hr1.tex?format=png"))
     (OUT / "districts.json").write_text(json.dumps(districts, indent=1) + "\n")
     print(f"wrote {len(districts)} districts")
 
