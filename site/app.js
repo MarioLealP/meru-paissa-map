@@ -27,8 +27,11 @@ function setPref(key, value) {
 
 function filtered(plots) {
   const sizes = [...document.querySelectorAll("[data-size]")].filter((c) => c.checked).map((c) => +c.dataset.size);
+  const buyer = +$("buyer").value; // purchase_system bits: 2 FC, 4 personal; "both" plots match either
   const entryOnly = $("entry-only").checked;
-  return plots.filter((p) => sizes.includes(p.size) && (!entryOnly || status(p) === "open"));
+  return plots.filter(
+    (p) => sizes.includes(p.size) && p.purchase_system & buyer && (!entryOnly || status(p) === "open"),
+  );
 }
 
 function openPlots(districtId) {
@@ -166,7 +169,11 @@ async function init() {
     loadWorld(id);
   };
   $("refresh").onclick = () => loadWorld(+$("world").value, true);
-  $("filters").onchange = render;
+  $("buyer").value = pref("buyer", "6");
+  $("filters").onchange = () => {
+    setPref("buyer", $("buyer").value);
+    render();
+  };
   setInterval(renderAge, 60000);
 
   render();
