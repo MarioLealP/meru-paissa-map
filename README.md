@@ -12,3 +12,6 @@ Static site, no build step, no backend of its own.
   `lotto_phase` 1 entries open, 2 results, 3 unavailable.
 
 Local: `python -m http.server -d site 8000`.
+
+Deploy: `paissa.clockmost.com` (SSO, Mario only). Push to `main` -> the clockmost release path builds this
+Dockerfile (nginx) and promotes the image into `clockmost-infra/projects/paissa-map/compose.yaml`.
