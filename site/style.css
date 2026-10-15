@@ -66,6 +66,10 @@ nav button span {
   color: var(--muted);
 }
 
+#cycle {
+  margin: 0 0 8px;
+}
+
 #filters label {
   display: flex;
   align-items: center;

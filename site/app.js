@@ -1,5 +1,6 @@
 import { getWorld, getWorlds } from "./api.js";
-import { ago, bestStatus, describe, mainPlot, status } from "./listing.js";
+import { ago, bestStatus, describe, inTime, mainPlot, status, when } from "./listing.js";
+import { cycle } from "./lottery.js";
 
 const $ = (id) => document.getElementById(id);
 const SIZE_NAMES = ["S", "M", "L"];
@@ -132,7 +133,19 @@ function renderAge() {
   $("age").textContent = state.world ? `Data from ${ago(Date.now() - state.world.at)}` : "Loading...";
 }
 
+function renderCycle() {
+  const c = state.world && cycle(state.world.data);
+  if (!c) {
+    $("cycle").textContent = state.world ? "Lottery cycle: no data for this world." : "";
+    return;
+  }
+  $("cycle").textContent = c.entries
+    ? `Lottery: entries open until ${when(c.end)} (${inTime(c.end)}) · results until ${when(c.nextEnd)}`
+    : `Lottery: results until ${when(c.end)} (${inTime(c.end)}) · next entries until ${when(c.nextEnd)}`;
+}
+
 function render() {
+  renderCycle();
   renderTabs();
   renderMap();
   renderDetail();
