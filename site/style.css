@@ -1,0 +1,184 @@
+:root {
+  color-scheme: dark;
+  --bg: #121212;
+  --panel: #1c1c1c;
+  --line: #2e2e2e;
+  --text: #ddd;
+  --muted: #888;
+  --open: #4caf50;
+  --results: #e0a030;
+  --closed: #b0b0b0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 12px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.4 system-ui, sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+header,
+#filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+select,
+button,
+nav button {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 5px 9px;
+  font: inherit;
+  cursor: pointer;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+nav button[aria-pressed="true"] {
+  border-color: var(--text);
+}
+
+nav button span {
+  color: var(--muted);
+}
+
+#age {
+  margin-left: auto;
+  color: var(--muted);
+}
+
+#filters label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+main {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  main {
+    grid-template-columns: minmax(0, calc(100vh - 110px)) 320px;
+    align-items: start;
+  }
+}
+
+#map {
+  position: relative;
+}
+
+#map-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 4px;
+  filter: brightness(0.75);
+}
+
+.plot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 11px;
+  border: 1px solid #000;
+  background: #000a;
+  color: #999;
+  font-size: 11px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.plot.open {
+  background: var(--open);
+  color: #000;
+  font-weight: 600;
+}
+
+.plot.results {
+  background: var(--results);
+  color: #000;
+  font-weight: 600;
+}
+
+.plot.closed {
+  background: var(--closed);
+  color: #000;
+}
+
+.plot.selected {
+  outline: 2px solid #fff;
+}
+
+.plot.size-2 {
+  min-width: 28px;
+  height: 28px;
+  line-height: 26px;
+  border-radius: 14px;
+}
+
+.plot.size-0 {
+  min-width: 18px;
+  height: 18px;
+  line-height: 16px;
+  border-radius: 9px;
+  font-size: 10px;
+}
+
+aside {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px 12px;
+}
+
+aside h2 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.listing {
+  border-top: 1px solid var(--line);
+  padding: 6px 0;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin: 0 2px 0 8px;
+}
+
+footer {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}

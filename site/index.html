@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Paissa Map</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <select id="world" aria-label="World"></select>
+      <nav id="districts"></nav>
+      <span id="age"></span>
+      <button id="refresh" type="button">Refresh</button>
+    </header>
+
+    <div id="filters">
+      <label><input type="checkbox" data-size="0" checked /> S</label>
+      <label><input type="checkbox" data-size="1" checked /> M</label>
+      <label><input type="checkbox" data-size="2" checked /> L</label>
+      <label><input type="checkbox" id="entry-only" /> Accepting entries only</label>
+      <span class="muted">
+        <span class="key" style="background: var(--open)"></span>entries open / FCFS
+        <span class="key" style="background: var(--results)"></span>results
+        <span class="key" style="background: var(--closed)"></span>closed / unknown
+      </span>
+    </div>
+
+    <main>
+      <div id="map">
+        <img id="map-img" alt="" />
+        <div id="markers"></div>
+      </div>
+      <aside id="detail"><p class="muted">Click a plot.</p></aside>
+    </main>
+
+    <footer>
+      Data: <a href="https://zhu.codes/paissa">PaissaDB</a> (crowdsourced via the PaissaHouse plugin).
+    </footer>
+  </body>
+</html>
