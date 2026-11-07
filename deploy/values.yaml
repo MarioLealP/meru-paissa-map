@@ -7,8 +7,8 @@ name: paissa-map
 owner: mario
 image:
   repository: zot.clockmost.com/meru/paissa-map
-  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
-  tag: ""
+  digest: sha256:306b2ad6be253734ed570dba3aab839d564acbc0afe460d956de29799c7d6454
+  tag: "c5a7042cb201"
 # A static site: nginx serves site/ on 8080 and answers /heartbeat itself (nginx.conf). One worker, a few MB.
 resources:
   requests:
