@@ -1,34 +1,36 @@
 # paissa-map
 
-FFXIV housing - PaissaDB's open plots on the district maps
+FFXIV housing: open plots from [PaissaDB](https://zhu.codes/paissa) shown on the district maps instead of a list.
+Static site, no build step, no backend of its own.
 
-A static site on Meru, made from the [Meru/nuwa-static](https://git.clockmost.com/Meru/nuwa-static) template: the files in
-`site/` served by unprivileged nginx on port 8080. No backend - anything else a page needs, the visitor's browser fetches
-itself, so the pod may open no connections at all.
+- `site/` - the page. `api.js` reads `paissadb.zhu.codes` from the browser and caches each world in localStorage
+  for 12 h (Refresh button forces a fetch) - it is a free community service, keep requests rare.
+- `site/districts.json`, `site/maps/` - generated game data (plot positions, sizes, cropped maps) from XIVAPI.
+  Rebuild only if a housing district changes: `uv run tools/fetch_gamedata.py` (needs `vips`).
+- Subdivision plots (31-60) share the main division's layout, so plot N+30 is drawn on plot N's marker.
+- PaissaDB numbers wards and plots from 0; `purchase_system` is a bit flag (1 lottery, 2 FC, 4 personal);
+  `lotto_phase` 1 entries open, 2 results, 3 unavailable.
 
-## Change the site
-
-Edit `site/`, open a PR, merge. Merging to `main` builds the image, signs it with this app's key, pushes it to Zot and
-rolls it out. Locally: `python -m http.server -d site 8000`, or the real image:
+Local: `python -m http.server -d site 8000`, or the real image:
 
 ```sh
 podman build -t paissa-map . && podman run --rm --read-only --tmpfs /tmp --user 10001 -p 8080:8080 paissa-map
 ```
 
-## What's fixed
+## On Meru
 
-- `Dockerfile`: nginx-unprivileged pinned to a digest (CI refuses anything else; an upgrade is a PR that changes it), this
-  repo's `nginx.conf` and `site/`. It starts nginx directly: the base image's entrypoint scripts edit config files, and the
-  root filesystem is read-only.
-- `nginx.conf`: the whole config - one worker, pid and temp files in `/tmp` (the only writable path), logs to the pod's
-  output, gzip, no version in headers, `GET /heartbeat` -> `ok` for Meru's probes.
-- `deploy/values.yaml`: small limits, and a NetworkPolicy that lets in only Caddy and the node's probes and lets nothing
-  out (`networkPolicy.egress: none`).
+A static site on Meru, made from the [Meru/nuwa-static](https://git.clockmost.com/Meru/nuwa-static) template: `site/`
+served by unprivileged nginx on 8080 with this repo's `nginx.conf`. The pod may open no connections at all
+(`networkPolicy.egress: none`) - PaissaDB is called by the visitor's browser, never by the server.
 
-## Deploy
+Edit `site/`, open a PR, merge. Merging to `main` builds the image, signs it with this app's key, pushes it to Zot and
+rolls it out. `deploy/values.yaml` is the whole deployment (Meru's `nuwa-app` chart); `deploy/meru.yaml` makes Meru
+deploy it into namespace `paissa-map`. Route: `paissa.clockmost.com`, SSO at Caddy, Mario only, LAN + VPN only.
 
-`deploy/meru.yaml` makes this repo a Meru app: [Meru/meru](https://git.clockmost.com/Meru/meru) finds it and deploys it into
-namespace `paissa-map`. Shikigami adds it once the app's fence, signing key and build credentials exist, from
-`deploy/meru.yaml.in` with the owner from the request. `deploy/values.yaml` is the app's whole deployment, rendered with the
-`nuwa-app` chart from [Meru/nuwa](https://git.clockmost.com/Meru/nuwa). Builds run in namespace `paissa-map-build` on the
-runner from [Meru/sindri](https://git.clockmost.com/Meru/sindri). No secrets live in this repo.
+History: this repo carries the commits of [MarioGLealP/paissa-map](https://git.clockmost.com/MarioGLealP/paissa-map),
+the Docker Compose version, which stays public and archived as it was.
+
+## License
+
+Code: MIT (`LICENSE`). The district map images in `site/maps/` are FINAL FANTASY XIV assets, (c) SQUARE ENIX, used as
+fan content - not covered by the license.

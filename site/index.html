@@ -1,12 +1,50 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>paissa-map</title>
-</head>
-<body>
-  <h1>paissa-map</h1>
-  <p>FFXIV housing - PaissaDB's open plots on the district maps</p>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Paissa Map</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.js"></script>
+  </head>
+  <body>
+    <header>
+      <select id="world" aria-label="World"></select>
+      <nav id="districts"></nav>
+      <span id="age"></span>
+      <button id="refresh" type="button">Refresh</button>
+    </header>
+
+    <p id="cycle"></p>
+
+    <div id="filters">
+      <label><input type="checkbox" data-size="0" checked /> S</label>
+      <label><input type="checkbox" data-size="1" checked /> M</label>
+      <label><input type="checkbox" data-size="2" checked /> L</label>
+      <select id="buyer" aria-label="Buyer">
+        <option value="6">Personal or FC</option>
+        <option value="4">Personal</option>
+        <option value="2">Free Company</option>
+      </select>
+      <label><input type="checkbox" id="entry-only" /> Accepting entries only</label>
+      <span class="muted">
+        <span class="key" style="background: var(--open)"></span>entries open / FCFS
+        <span class="key" style="background: var(--results)"></span>results
+        <span class="key" style="background: var(--closed)"></span>closed / outdated / unknown
+        <img class="key-icon" src="maps/market-board.png" alt="" />market board
+      </span>
+    </div>
+
+    <main>
+      <div id="map">
+        <img id="map-img" alt="" />
+        <div id="markers"></div>
+      </div>
+      <aside id="detail"><p class="muted">Click a plot.</p></aside>
+    </main>
+
+    <footer>
+      Data: <a href="https://zhu.codes/paissa">PaissaDB</a> (crowdsourced via the PaissaHouse plugin).
+    </footer>
+  </body>
 </html>
