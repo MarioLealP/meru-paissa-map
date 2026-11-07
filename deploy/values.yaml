@@ -1,0 +1,26 @@
+# paissa-map's deployment, rendered by Argo CD with Meru's nuwa-app chart. Shikigami fills in what comes from the
+# request (owner, size, route) and adds deploy/meru.yaml - the marker that makes Meru deploy this repo - once the
+# app's namespace fence, signing key and build credentials exist. CI writes the image after each build; until the
+# first one the digest is a placeholder: nuwa-app renders everything but the workload (the build runner comes up, no
+# pod waits on an image that doesn't exist yet).
+name: paissa-map
+owner: "" # from the request
+image:
+  repository: zot.clockmost.com/meru/paissa-map
+  digest: sha256:0000000000000000000000000000000000000000000000000000000000000000
+  tag: ""
+# A static site: nginx serves site/ on 8080 and answers /heartbeat itself (nginx.conf). One worker, a few MB.
+resources:
+  requests:
+    cpu: 5m
+    memory: 16Mi
+  limits:
+    memory: 64Mi
+# It only answers: in from Caddy and the node's probes, nothing out - not even DNS. Anything else the page needs, the
+# visitor's browser fetches itself.
+networkPolicy:
+  enabled: true
+  egress: none
+# nginx sends no traces.
+otel:
+  enabled: false
